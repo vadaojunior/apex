@@ -1,43 +1,56 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { AuditService, AuditAction, AuditResource } from '@/services/AuditService'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = 20
 
     try {
         const where: any = {}
-        if (status) where.status = status
+        if (status && status !== 'ALL') where.status = status
 
-        const receivables = await prisma.receivable.findMany({
-            where,
-            include: {
-                client: true,
-                sale: true
-            },
-            orderBy: { dueDate: 'asc' }
+        const [receivables, total] = await Promise.all([
+            prisma.receivable.findMany({
+                where,
+                include: { client: true, sale: true },
+                orderBy: { dueDate: 'asc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            prisma.receivable.count({ where })
+        ])
+
+        return ApiResponse.success({
+            receivables,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
         })
-        return NextResponse.json(receivables)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao buscar contas a receber' }, { status: 500 })
+        return ApiResponse.serverError('Erro ao buscar contas a receber')
     }
 }
 
 export async function PATCH(request: Request) {
     try {
         const session = await getSession()
-        if (!session) return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+        if (!session) return ApiResponse.unauthorized()
 
-        const { id, receivedAmount, notes, status } = await request.json()
+        const body = await request.json()
+        const { id, receivedAmount, notes, status } = body
 
         const receivable = await prisma.receivable.findUnique({
             where: { id }
         })
 
-        if (!receivable) {
-            return NextResponse.json({ message: 'Conta não encontrada' }, { status: 404 })
-        }
+        if (!receivable) return ApiResponse.notFound('Conta não encontrada')
 
         const newReceivedAmount = receivable.receivedAmount + receivedAmount
         const newStatus = status || (newReceivedAmount >= receivable.amount ? 'PAID' : 'OPEN')
@@ -61,20 +74,22 @@ export async function PATCH(request: Request) {
                 })
             }
 
-            await tx.auditLog.create({
-                data: {
-                    userId: session.userId,
-                    action: 'UPDATE',
-                    resource: 'RECEIVABLE',
-                    details: `Pagamento registrado para conta ${id}: ${receivedAmount / 100}`
-                }
+            await AuditService.log({
+                userId: session.userId,
+                action: AuditAction.PAYMENT,
+                resource: AuditResource.RECEIVABLE,
+                entityId: id,
+                details: `Pagamento de ${receivedAmount / 100} registrado. Status: ${newStatus}`,
+                oldValue: receivable,
+                newValue: rec
             })
 
             return rec
         })
 
-        return NextResponse.json(updated)
+        return ApiResponse.success(updated)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao atualizar pagamento' }, { status: 500 })
+        console.error('Update payment error:', error)
+        return ApiResponse.serverError('Erro ao atualizar pagamento')
     }
 }

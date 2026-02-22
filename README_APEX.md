@@ -51,9 +51,11 @@ Acesse em: `http://localhost:3000/login`
 - **Banco de Dados:** Prisma ORM com SQLite
 - **Autenticação:** JWT + BCrypt + Cookies Seguros
 
-## 📋 Funcionalidades Implementadas (Parte 1)
-- [x] Login funcional com autenticação segura.
-- [x] Middleware de proteção de rotas.
-- [x] Logo APEX integrada.
-- [x] Dashboard base com estrutura responsiva.
-- [x] Seed automático de serviços e admin.
+## 📋 Funcionalidades Implementadas (Parte 3)
+- [x] **Auditoria Avançada**: Logs detalhados de todas as ações críticas (criação, edição, pagamentos).
+- [x] **Relatórios Financeiros**: Visão de faturamento por serviço, lucro líquido e inadimplência.
+- [x] **Exportação**: Suporte a exportação de relatórios em formato CSV.
+- [x] **Arquitetura Modular**: Implementação de Camada de Serviços e Schemas Zod para validação.
+- [x] **Alertas de Dashboard**: Sistema de alertas para contas vencidas (Receber/Pagar).
+- [x] **Abstração de Pagamentos**: Interface preparada para integração com provedores reais (Stripe, Asaas).
+- [x] **Performance**: Índices de banco de dados otimizados para buscas financeiras.

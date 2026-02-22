@@ -11,7 +11,9 @@ import {
     ArrowDownCircle,
     Settings,
     LogOut,
-    Receipt
+    Receipt,
+    BarChart3,
+    Shield
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,7 +25,8 @@ const menuItems = [
     { name: 'Contas a Receber', href: '/receivables', icon: ArrowUpCircle },
     { name: 'Contas a Pagar', href: '/payables', icon: ArrowDownCircle },
     { name: 'Extrato', href: '/financial/extract', icon: Receipt },
-    { name: 'Configurações', href: '/settings/audit-logs', icon: Settings },
+    { name: 'Relatórios', href: '/reports', icon: BarChart3 },
+    { name: 'Audit Logs', href: '/settings/audit-logs', icon: Shield },
 ]
 
 export default function Sidebar() {

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { startOfMonth, endOfMonth } from 'date-fns'
@@ -6,20 +6,20 @@ import { startOfMonth, endOfMonth } from 'date-fns'
 export async function GET() {
     try {
         const session = await getSession()
-        if (!session) return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+        if (!session) return ApiResponse.unauthorized()
 
         const now = new Date()
         const monthStart = startOfMonth(now)
         const monthEnd = endOfMonth(now)
 
-        // Parallel fetching for performance
         const [
             clientsCount,
             activeProcesses,
             totalServices,
             monthReceivables,
             monthPayables,
-            overdueReceivables
+            overdueReceivables,
+            overduePayables
         ] = await Promise.all([
             prisma.client.count(),
             prisma.clientService.count({ where: { status: 'PENDING' } }),
@@ -27,7 +27,8 @@ export async function GET() {
             prisma.receivable.findMany({
                 where: {
                     dueDate: { gte: monthStart, lte: monthEnd }
-                }
+                },
+                include: { client: true }
             }),
             prisma.payable.findMany({
                 where: {
@@ -36,13 +37,18 @@ export async function GET() {
             }),
             prisma.receivable.findMany({
                 where: {
+                    status: { in: ['OPEN', 'OVERDUE'] },
+                    dueDate: { lt: now }
+                }
+            }),
+            prisma.payable.findMany({
+                where: {
                     status: 'OPEN',
                     dueDate: { lt: now }
                 }
             })
         ])
 
-        // Summary calculations
         const revenue = monthReceivables
             .filter(r => r.status === 'PAID')
             .reduce((acc, r) => acc + r.receivedAmount, 0)
@@ -56,8 +62,9 @@ export async function GET() {
             .reduce((acc, p) => acc + p.amount, 0)
 
         const overdueAmount = overdueReceivables.reduce((acc, r) => acc + (r.amount - r.receivedAmount), 0)
+        const overduePayablesAmount = overduePayables.reduce((acc, p) => acc + p.amount, 0)
 
-        return NextResponse.json({
+        return ApiResponse.success({
             clientsCount,
             activeProcesses,
             totalServices,
@@ -66,6 +73,8 @@ export async function GET() {
             expenses,
             profit: revenue - expenses,
             overdueAmount,
+            overduePayablesAmount,
+            overdueCount: overdueReceivables.length + overduePayables.length,
             nextVencimentos: monthReceivables
                 .filter(r => r.status === 'OPEN')
                 .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
@@ -73,6 +82,6 @@ export async function GET() {
         })
     } catch (error) {
         console.error('Dashboard Error:', error)
-        return NextResponse.json({ message: 'Erro ao processar dados do dashboard' }, { status: 500 })
+        return ApiResponse.serverError()
     }
 }

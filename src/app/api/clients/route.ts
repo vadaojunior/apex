@@ -1,40 +1,46 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { AuditService, AuditAction, AuditResource } from '@/services/AuditService'
+import { ClientSchema } from '@/schemas'
 
 export async function GET() {
     try {
         const clients = await prisma.client.findMany({
             orderBy: { name: 'asc' }
         })
-        return NextResponse.json(clients)
+        return ApiResponse.success(clients)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao buscar clientes' }, { status: 500 })
+        return ApiResponse.serverError('Erro ao buscar clientes')
     }
 }
 
 export async function POST(request: Request) {
     try {
         const session = await getSession()
-        if (!session) return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+        if (!session) return ApiResponse.unauthorized()
 
-        const { name, cpf, phone, email } = await request.json()
+        const body = await request.json()
+        const validatedData = ClientSchema.parse(body)
 
         const client = await prisma.client.create({
-            data: { name, cpf, phone, email }
+            data: validatedData
         })
 
-        await prisma.auditLog.create({
-            data: {
-                userId: session.userId,
-                action: 'CREATE',
-                resource: 'CLIENT',
-                details: `Cliente criado: ${name}`
-            }
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.CREATE,
+            resource: AuditResource.CLIENT,
+            entityId: client.id,
+            details: `Cliente criado: ${client.name}`,
+            newValue: client
         })
 
-        return NextResponse.json(client)
-    } catch (error) {
-        return NextResponse.json({ message: 'Erro ao criar cliente' }, { status: 500 })
+        return ApiResponse.success(client, 201)
+    } catch (error: any) {
+        if (error.name === 'ZodError') {
+            return ApiResponse.error('Dados inválidos', 400, error.errors)
+        }
+        return ApiResponse.serverError('Erro ao criar cliente')
     }
 }

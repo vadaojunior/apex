@@ -54,6 +54,26 @@ export default function DashboardPage() {
                     <span className="text-xs text-gray-400 font-medium">Sistema Seguro</span>
                 </div>
             </header>
+            {/* Alerts Section */}
+            {(stats?.overdueCount > 0) && (
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg flex items-center justify-between group animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center space-x-3">
+                        <AlertTriangle className="w-6 h-6 text-red-500 animate-pulse" />
+                        <div>
+                            <p className="text-white font-bold">Atenção: Existem {stats.overdueCount} itens vencidos!</p>
+                            <p className="text-xs text-gray-400">Total em atraso: {formatCurrency(stats.overdueAmount + (stats.overduePayablesAmount || 0))}</p>
+                        </div>
+                    </div>
+                    <div className="flex space-x-2">
+                        <Button asChild size="sm" variant="outline" className="border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white">
+                            <Link href="/receivables">Resolver Recebíveis</Link>
+                        </Button>
+                        <Button asChild size="sm" variant="outline" className="border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white">
+                            <Link href="/payables">Resolver Pagáveis</Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* Primary KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

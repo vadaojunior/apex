@@ -1,75 +1,100 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { AuditService, AuditAction, AuditResource } from '@/services/AuditService'
+import { PayableSchema } from '@/schemas'
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = 20
+
     try {
-        const payables = await prisma.payable.findMany({
-            orderBy: { dueDate: 'asc' }
+        const [payables, total] = await Promise.all([
+            prisma.payable.findMany({
+                orderBy: { dueDate: 'asc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            prisma.payable.count()
+        ])
+
+        return ApiResponse.success({
+            payables,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
         })
-        return NextResponse.json(payables)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao buscar contas a pagar' }, { status: 500 })
+        return ApiResponse.serverError('Erro ao buscar contas a pagar')
     }
 }
 
 export async function POST(request: Request) {
     try {
         const session = await getSession()
-        if (!session) return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+        if (!session) return ApiResponse.unauthorized()
 
-        const { description, category, amount, dueDate, status, isRecurring, recurrenceInterval } = await request.json()
+        const body = await request.json()
+        const validatedData = PayableSchema.parse({
+            ...body,
+            dueDate: new Date(body.dueDate)
+        })
 
         const payable = await prisma.payable.create({
             data: {
-                description,
-                category,
-                amount,
-                dueDate: new Date(dueDate),
-                status: status || 'OPEN',
-                isRecurring: isRecurring || false,
-                recurrenceInterval
+                ...validatedData,
+                isRecurring: body.isRecurring || false,
+                recurrenceInterval: body.recurrenceInterval
             }
         })
 
-        await prisma.auditLog.create({
-            data: {
-                userId: session.userId,
-                action: 'CREATE',
-                resource: 'PAYABLE',
-                details: `Conta a pagar criada: ${description}, Valor: ${amount / 100}`
-            }
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.CREATE,
+            resource: AuditResource.PAYABLE,
+            entityId: payable.id,
+            details: `Conta a pagar criada: ${payable.description}`,
+            newValue: payable
         })
 
-        return NextResponse.json(payable)
-    } catch (error) {
-        return NextResponse.json({ message: 'Erro ao criar conta a pagar' }, { status: 500 })
+        return ApiResponse.success(payable, 201)
+    } catch (error: any) {
+        if (error.name === 'ZodError') return ApiResponse.error('Dados inválidos', 400, error.errors)
+        return ApiResponse.serverError('Erro ao criar conta a pagar')
     }
 }
 
 export async function PATCH(request: Request) {
     try {
         const session = await getSession()
-        if (!session) return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
+        if (!session) return ApiResponse.unauthorized()
 
         const { id, status } = await request.json()
+
+        const oldPayable = await prisma.payable.findUnique({ where: { id } })
+        if (!oldPayable) return ApiResponse.notFound()
 
         const updated = await prisma.payable.update({
             where: { id },
             data: { status }
         })
 
-        await prisma.auditLog.create({
-            data: {
-                userId: session.userId,
-                action: 'UPDATE',
-                resource: 'PAYABLE',
-                details: `Conta a pagar ${id} atualizada para status: ${status}`
-            }
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.UPDATE,
+            resource: AuditResource.PAYABLE,
+            entityId: id,
+            details: `Status alterado para ${status}`,
+            oldValue: oldPayable,
+            newValue: updated
         })
 
-        return NextResponse.json(updated)
+        return ApiResponse.success(updated)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao atualizar conta a pagar' }, { status: 500 })
+        return ApiResponse.serverError('Erro ao atualizar conta a pagar')
     }
 }

@@ -1,32 +1,30 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
+import { AuditService, AuditAction, AuditResource } from '@/services/AuditService'
+import { SaleSchema } from '@/schemas'
 
 export async function POST(request: Request) {
     try {
         const session = await getSession()
-        if (!session) {
-            return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
-        }
+        if (!session) return ApiResponse.unauthorized()
+
+        const body = await request.json()
+        const validatedData = SaleSchema.parse(body)
 
         const {
             clientId,
             items,
-            discount = 0,
+            discount,
             paymentMethod,
-            installments = 1,
-            paymentStatus, // 'PAID' or 'OPEN'
-            dueDate,
+            installments,
+            paymentStatus,
             notes
-        } = await request.json()
+        } = validatedData
 
-        if (!clientId || !items || items.length === 0) {
-            return NextResponse.json({ message: 'Dados da venda incompletos' }, { status: 400 })
-        }
-
-        // Calculate total
+        // Calculate total on server side for safety
         let totalAmount = 0
-        const saleItemsData = items.map((item: any) => {
+        const saleItemsData = items.map(item => {
             const totalPrice = item.quantity * item.unitPrice
             totalAmount += totalPrice
             return {
@@ -39,7 +37,6 @@ export async function POST(request: Request) {
 
         const finalAmount = totalAmount - discount
 
-        // Create Sale and Receivable in a transaction
         const result = await prisma.$transaction(async (tx) => {
             const sale = await tx.sale.create({
                 data: {
@@ -50,10 +47,10 @@ export async function POST(request: Request) {
                     items: {
                         create: saleItemsData
                     }
-                }
+                },
+                include: { items: true }
             })
 
-            // Generate Receivable
             const receivable = await tx.receivable.create({
                 data: {
                     saleId: sale.id,
@@ -61,15 +58,13 @@ export async function POST(request: Request) {
                     description: `Venda #${sale.id.slice(-6).toUpperCase()}`,
                     amount: finalAmount,
                     receivedAmount: paymentStatus === 'PAID' ? finalAmount : 0,
-                    dueDate: new Date(dueDate || new Date()),
+                    dueDate: new Date(),
                     status: paymentStatus === 'PAID' ? 'PAID' : 'OPEN',
                     paymentMethod,
                     installments: paymentMethod === 'CREDIT_CARD' ? installments : 1,
-                    // Tax logic would go here if we had the config
                 }
             })
 
-            // Create Payment History if paid
             if (paymentStatus === 'PAID') {
                 await tx.paymentRecord.create({
                     data: {
@@ -81,23 +76,25 @@ export async function POST(request: Request) {
                 })
             }
 
-            // Log the action
-            await tx.auditLog.create({
-                data: {
-                    userId: session.userId,
-                    action: 'CREATE',
-                    resource: 'SALE',
-                    details: `Venda criada: ID ${sale.id}, Total: ${finalAmount / 100}`
-                }
+            await AuditService.log({
+                userId: session.userId,
+                action: AuditAction.CREATE,
+                resource: AuditResource.SALE,
+                entityId: sale.id,
+                details: `Venda registrada para cliente ID: ${clientId}`,
+                newValue: sale
             })
 
             return { sale, receivable }
         })
 
-        return NextResponse.json(result)
-    } catch (error) {
+        return ApiResponse.success(result, 201)
+    } catch (error: any) {
         console.error('Erro ao criar venda:', error)
-        return NextResponse.json({ message: 'Erro interno ao processar venda' }, { status: 500 })
+        if (error.name === 'ZodError') {
+            return ApiResponse.error('Dados da venda inválidos', 400, error.errors)
+        }
+        return ApiResponse.serverError('Erro ao processar venda')
     }
 }
 
@@ -116,8 +113,8 @@ export async function GET() {
                 date: 'desc'
             }
         })
-        return NextResponse.json(sales)
+        return ApiResponse.success(sales)
     } catch (error) {
-        return NextResponse.json({ message: 'Erro ao buscar vendas' }, { status: 500 })
+        return ApiResponse.serverError('Erro ao buscar vendas')
     }
 }

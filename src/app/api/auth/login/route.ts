@@ -1,16 +1,14 @@
-import { NextResponse } from 'next/server'
+import { ApiResponse } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 import { verifyPassword, createSession } from '@/lib/auth'
+import { AuditService, AuditAction, AuditResource } from '@/services/AuditService'
 
 export async function POST(request: Request) {
     try {
         const { username, password } = await request.json()
 
         if (!username || !password) {
-            return NextResponse.json(
-                { message: 'Usuário e senha são obrigatórios' },
-                { status: 400 }
-            )
+            return ApiResponse.error('Usuário e senha são obrigatórios')
         }
 
         const user = await prisma.user.findUnique({
@@ -18,20 +16,24 @@ export async function POST(request: Request) {
         })
 
         if (!user) {
-            return NextResponse.json(
-                { message: 'Credenciais inválidas' },
-                { status: 401 }
-            )
+            await AuditService.log({
+                action: AuditAction.LOGIN,
+                resource: AuditResource.USER,
+                details: `Tentativa de login falha: usuário ${username} não encontrado.`
+            })
+            return ApiResponse.unauthorized('Credenciais inválidas')
         }
 
         const isPasswordValid = await verifyPassword(password, user.password)
 
         if (!isPasswordValid) {
-            // Ideally implement rate limit / lockout here
-            return NextResponse.json(
-                { message: 'Credenciais inválidas' },
-                { status: 401 }
-            )
+            await AuditService.log({
+                userId: user.id,
+                action: AuditAction.LOGIN,
+                resource: AuditResource.USER,
+                details: `Tentativa de login falha: senha incorreta para ${username}.`
+            })
+            return ApiResponse.unauthorized('Credenciais inválidas')
         }
 
         await createSession({
@@ -41,22 +43,16 @@ export async function POST(request: Request) {
             role: user.role
         })
 
-        // Log the access in audit_logs
-        await prisma.auditLog.create({
-            data: {
-                userId: user.id,
-                action: 'LOGIN',
-                resource: 'AUTH',
-                details: `Usuário ${username} logado com sucesso.`
-            }
+        await AuditService.log({
+            userId: user.id,
+            action: AuditAction.LOGIN,
+            resource: AuditResource.USER,
+            details: `Usuário ${username} logado com sucesso.`
         })
 
-        return NextResponse.json({ message: 'Login realizado com sucesso' })
+        return ApiResponse.success({ message: 'Login realizado com sucesso' })
     } catch (error) {
         console.error('Erro no login:', error)
-        return NextResponse.json(
-            { message: 'Erro interno no servidor' },
-            { status: 500 }
-        )
+        return ApiResponse.serverError()
     }
 }

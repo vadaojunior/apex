@@ -37,6 +37,8 @@ model Client {
   services    ClientService[]
   sales       Sale[]
   receivables Receivable[]
+
+  @@index([name])
 }
 
 model Service {
@@ -78,6 +80,8 @@ model Sale {
   client      Client   @relation(fields: [clientId], references: [id])
   items       SaleItem[]
   receivables Receivable[]
+
+  @@index([date])
 }
 
 model SaleItem {
@@ -125,6 +129,9 @@ model Receivable {
   sale             Sale?    @relation(fields: [saleId], references: [id])
   client           Client   @relation(fields: [clientId], references: [id])
   paymentRecords   PaymentRecord[]
+
+  @@index([status])
+  @@index([dueDate])
 }
 
 model PaymentRecord {
@@ -149,6 +156,9 @@ model Payable {
   recurrenceInterval String? // Monthly, etc.
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([dueDate])
 }
 
 model FinancialConfig {
@@ -162,9 +172,31 @@ model FinancialConfig {
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
-  action    String
-  resource  String
+  action    String   // LOGIN, LOGOUT, CHANGE_PASSWORD, CREATE, UPDATE, DELETE, etc.
+  resource  String   // CLIENT, SERVICE, RECEIVABLE, PAYABLE, etc.
   details   String?
+  ip        String?
+  userAgent String?
+  entityId  String?
+  oldValue  String?  // JSON string
+  newValue  String?  // JSON string
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([resource])
+}
+
+model ProviderWebhook {
+  id          String   @id @default(cuid())
+  provider    String   // e.g., STRIPE, ASAAS, PAGSEGURO
+  externalId  String?
+  payload     String   // Full JSON payload
+  status      String   @default("RECEIVED") // RECEIVED, PROCESSED, ERROR
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([externalId])
+  @@index([createdAt])
 }
 
