@@ -45,17 +45,42 @@ export default function SalesPage() {
 
     useEffect(() => {
         async function fetchData() {
+            setLoading(true)
             try {
+                // Log the attempt
+                console.log('Iniciando busca de dados em /api/clients e /api/services...')
+
                 const [clientsRes, servicesRes] = await Promise.all([
-                    fetch('/api/clients'),
-                    fetch('/api/services')
+                    fetch('/api/clients').catch(e => { throw new Error(`Falha ao buscar clientes: ${e.message}`) }),
+                    fetch('/api/services').catch(e => { throw new Error(`Falha ao buscar serviços: ${e.message}`) })
                 ])
+
+                if (!clientsRes.ok) {
+                    const errorData = await clientsRes.json().catch(() => ({ message: 'Erro desconhecido' }))
+                    throw new Error(`Erro API Clientes (${clientsRes.status}): ${errorData.message || clientsRes.statusText}`)
+                }
+
+                if (!servicesRes.ok) {
+                    const errorData = await servicesRes.json().catch(() => ({ message: 'Erro desconhecido' }))
+                    throw new Error(`Erro API Serviços (${servicesRes.status}): ${errorData.message || servicesRes.statusText}`)
+                }
+
                 const clientsData = await clientsRes.json()
                 const servicesData = await servicesRes.json()
+
+                console.log('Dados recebidos com sucesso:', {
+                    clients: clientsData.length,
+                    services: servicesData.length
+                })
+
                 setClients(clientsData)
                 setServices(servicesData)
-            } catch (err) {
-                console.error('Erro ao buscar dados:', err)
+            } catch (err: any) {
+                console.error('ERRO CRÍTICO NA SALES PAGE:', err)
+                // Opcional: mostrar um alerta mais informativo se for ambiente dev
+                if (process.env.NODE_ENV === 'development') {
+                    console.warn('Dica: Verifique se o servidor Next.js está rodando e se o Prisma Client foi gerado.')
+                }
             } finally {
                 setLoading(false)
             }
