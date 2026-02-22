@@ -1,0 +1,319 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Plus, Trash2, Calculator, Receipt, CreditCard, Banknote } from 'lucide-react'
+import { formatCurrency } from '@/lib/financial-utils'
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from '@/components/ui/select'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
+} from '@/components/ui/table'
+
+export default function SalesPage() {
+    const [clients, setClients] = useState<any[]>([])
+    const [services, setServices] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    // Sale Form State
+    const [selectedClient, setSelectedClient] = useState('')
+    const [saleItems, setSaleItems] = useState<any[]>([])
+    const [discount, setDiscount] = useState(0)
+    const [paymentMethod, setPaymentMethod] = useState('CASH')
+    const [installments, setInstallments] = useState(1)
+    const [paymentStatus, setPaymentStatus] = useState('PAID')
+    const [notes, setNotes] = useState('')
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const [clientsRes, servicesRes] = await Promise.all([
+                    fetch('/api/clients'),
+                    fetch('/api/services')
+                ])
+                const clientsData = await clientsRes.json()
+                const servicesData = await servicesRes.json()
+                setClients(clientsData)
+                setServices(servicesData)
+            } catch (err) {
+                console.error('Erro ao buscar dados:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
+
+    const addService = (serviceId: string) => {
+        const service = services.find(s => s.id === serviceId)
+        if (!service) return
+
+        setSaleItems([...saleItems, {
+            serviceId: service.id,
+            name: service.name,
+            quantity: 1,
+            unitPrice: service.price || 0,
+            totalPrice: service.price || 0
+        }])
+    }
+
+    const removeService = (index: number) => {
+        setSaleItems(saleItems.filter((_, i) => i !== index))
+    }
+
+    const updateQuantity = (index: number, qty: number) => {
+        const newItems = [...saleItems]
+        newItems[index].quantity = qty
+        newItems[index].totalPrice = qty * newItems[index].unitPrice
+        setSaleItems(newItems)
+    }
+
+    const total = saleItems.reduce((acc, item) => acc + item.totalPrice, 0)
+    const finalTotal = total - discount
+
+    const handleSubmit = async () => {
+        if (!selectedClient || saleItems.length === 0) return
+
+        setLoading(true)
+        try {
+            const res = await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clientId: selectedClient,
+                    items: saleItems,
+                    discount,
+                    paymentMethod,
+                    installments,
+                    paymentStatus,
+                    notes
+                })
+            })
+
+            if (res.ok) {
+                alert('Venda registrada com sucesso!')
+                // Reset form or redirect
+                window.location.reload()
+            } else {
+                alert('Erro ao registrar venda')
+            }
+        } catch (err) {
+            alert('Erro na requisição')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="p-8 max-w-6xl mx-auto space-y-8">
+            <header>
+                <h1 className="text-3xl font-bold text-[#d4af37]">Novo Atendimento</h1>
+                <p className="text-gray-400">Registre vendas e gere contas a receber automaticamente.</p>
+            </header>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Form Column */}
+                <div className="lg:col-span-2 space-y-6">
+                    <Card className="bg-[#1a1a1a] border-yellow-600/10">
+                        <CardHeader>
+                            <CardTitle className="text-white text-lg font-medium">Informações da Venda</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-gray-400">Cliente</Label>
+                                <Select onValueChange={setSelectedClient}>
+                                    <SelectTrigger className="bg-[#252525] border-gray-800 text-white">
+                                        <SelectValue placeholder="Selecione um cliente" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#252525] border-gray-800 text-white">
+                                        {clients.map(c => (
+                                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                        ))}
+                                        {clients.length === 0 && <SelectItem value="no-clients" disabled>Nenhum cliente cadastrado</SelectItem>}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-gray-400">Adicionar Serviço</Label>
+                                <Select onValueChange={addService}>
+                                    <SelectTrigger className="bg-[#252525] border-gray-800 text-white">
+                                        <SelectValue placeholder="Escolha um serviço" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#252525] border-gray-800 text-white">
+                                        {services.map(s => (
+                                            <SelectItem key={s.id} value={s.id}>{s.name} - {formatCurrency(s.price || 0)}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="pt-4">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="border-gray-800">
+                                            <TableHead className="text-gray-400">Serviço</TableHead>
+                                            <TableHead className="text-gray-400">Qtd</TableHead>
+                                            <TableHead className="text-gray-400">Preço</TableHead>
+                                            <TableHead className="text-gray-400 text-right">Total</TableHead>
+                                            <TableHead></TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {saleItems.map((item, index) => (
+                                            <TableRow key={index} className="border-gray-800">
+                                                <TableCell className="text-white font-medium">{item.name}</TableCell>
+                                                <TableCell>
+                                                    <Input
+                                                        type="number"
+                                                        className="w-16 bg-[#252525] border-gray-800 text-white"
+                                                        value={item.quantity}
+                                                        onChange={(e) => updateQuantity(index, parseInt(e.target.value))}
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="text-gray-400">{formatCurrency(item.unitPrice)}</TableCell>
+                                                <TableCell className="text-white text-right font-bold">{formatCurrency(item.totalPrice)}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="icon" onClick={() => removeService(index)}>
+                                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {saleItems.length === 0 && (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                                                    Nenhum serviço adicionado.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Summary Column */}
+                <div className="space-y-6">
+                    <Card className="bg-[#1a1a1a] border-[#d4af37]/20 shadow-xl overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                        <CardHeader className="border-b border-yellow-600/5">
+                            <CardTitle className="text-[#d4af37] flex items-center space-x-2">
+                                <Calculator className="w-5 h-5" />
+                                <span>Resumo Financeiro</span>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 space-y-6">
+                            <div className="space-y-4">
+                                <div className="flex justify-between text-gray-400 text-sm">
+                                    <span>Subtotal</span>
+                                    <span className="text-white">{formatCurrency(total)}</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-gray-400 text-sm">
+                                        <Label>Desconto (R$)</Label>
+                                        <Input
+                                            type="number"
+                                            className="w-24 h-8 bg-[#252525] border-gray-800 text-white text-right"
+                                            value={discount / 100}
+                                            onChange={(e) => setDiscount(Math.round(parseFloat(e.target.value || '0') * 100))}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="border-t border-gray-800 pt-4 flex justify-between">
+                                    <span className="text-lg font-bold text-white">Total Líquido</span>
+                                    <span className="text-2xl font-black text-[#d4af37]">{formatCurrency(finalTotal)}</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <Label className="text-gray-400 text-xs uppercase tracking-widest font-bold">Forma de Pagamento</Label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <Button
+                                        variant={paymentMethod === 'CASH' ? 'default' : 'outline'}
+                                        className={paymentMethod === 'CASH' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
+                                        onClick={() => setPaymentMethod('CASH')}
+                                    >
+                                        <Banknote className="w-4 h-4 mr-2" />
+                                        Pix/Dinheiro
+                                    </Button>
+                                    <Button
+                                        variant={paymentMethod === 'CREDIT_CARD' ? 'default' : 'outline'}
+                                        className={paymentMethod === 'CREDIT_CARD' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
+                                        onClick={() => setPaymentMethod('CREDIT_CARD')}
+                                    >
+                                        <CreditCard className="w-4 h-4 mr-2" />
+                                        Cartão
+                                    </Button>
+                                    <Button
+                                        variant={paymentMethod === 'BOLETO' ? 'default' : 'outline'}
+                                        className={paymentMethod === 'BOLETO' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
+                                        onClick={() => setPaymentMethod('BOLETO')}
+                                    >
+                                        <Receipt className="w-4 h-4 mr-2" />
+                                        Boleto
+                                    </Button>
+                                </div>
+
+                                {paymentMethod === 'CREDIT_CARD' && (
+                                    <div className="space-y-2">
+                                        <Label className="text-gray-400">Parcelas</Label>
+                                        <Select onValueChange={(val) => setInstallments(parseInt(val))}>
+                                            <SelectTrigger className="bg-[#252525] border-gray-800 text-white">
+                                                <SelectValue placeholder="1x" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-[#252525] border-gray-800 text-white">
+                                                {[1, 2, 3, 4, 5, 6, 10, 12].map(num => (
+                                                    <SelectItem key={num} value={num.toString()}>{num}x</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center space-x-2 pt-2">
+                                    <input
+                                        type="checkbox"
+                                        id="is-paid"
+                                        className="rounded border-gray-800 bg-[#252525] text-[#d4af37]"
+                                        checked={paymentStatus === 'PAID'}
+                                        onChange={(e) => setPaymentStatus(e.target.checked ? 'PAID' : 'OPEN')}
+                                    />
+                                    <Label htmlFor="is-paid" className="text-sm text-gray-400">Marcar como Pago no ato</Label>
+                                </div>
+                            </div>
+
+                            <Button
+                                className="w-full h-12 bg-[#d4af37] text-black font-bold hover:bg-[#b8952e] transition-all text-base uppercase tracking-wider"
+                                onClick={handleSubmit}
+                                disabled={loading || saleItems.length === 0}
+                            >
+                                {loading ? 'Processando...' : 'Finalizar Atendimento'}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    )
+}

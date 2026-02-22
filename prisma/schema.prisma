@@ -32,17 +32,22 @@ model Client {
   email     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  services  ClientService[]
+  
+  services    ClientService[]
+  sales       Sale[]
+  receivables Receivable[]
 }
 
 model Service {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  price       Float?
+  price       Int?     // In cents
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
   clients     ClientService[]
+  saleItems   SaleItem[]
 }
 
 model ClientService {
@@ -58,6 +63,101 @@ model ClientService {
   service   Service  @relation(fields: [serviceId], references: [id])
 }
 
+model Sale {
+  id          String   @id @default(cuid())
+  clientId    String
+  totalAmount Int      // In cents
+  discount    Int      @default(0) // In cents
+  date        DateTime @default(now())
+  status      String   @default("COMPLETED") // COMPLETED, CANCELLED
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client      Client   @relation(fields: [clientId], references: [id])
+  items       SaleItem[]
+  receivables Receivable[]
+}
+
+model SaleItem {
+  id          String   @id @default(cuid())
+  saleId      String
+  serviceId   String
+  quantity    Int      @default(1)
+  unitPrice   Int      // In cents
+  totalPrice  Int      // In cents
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sale        Sale     @relation(fields: [saleId], references: [id])
+  service     Service  @relation(fields: [serviceId], references: [id])
+}
+
+model Receivable {
+  id               String   @id @default(cuid())
+  saleId           String?
+  clientId         String
+  description      String
+  amount           Int      // Total amount in cents
+  receivedAmount   Int      @default(0)
+  dueDate          DateTime
+  status           String   @default("OPEN") // OPEN, PAID, OVERDUE, CANCELLED
+  paymentMethod    String   // CASH, BOLETO, CREDIT_CARD
+  
+  // Credit Card fields
+  installments     Int      @default(1)
+  cardTaxPercent   Float?   @default(0)
+  cardTaxFixed     Int?     @default(0)
+  netAmount        Int?     // amount - taxes
+  
+  // Boleto / Future Integration fields
+  provider          String?
+  externalId        String?
+  linhaDigitavel    String?
+  barcode           String?
+  statusProvider    String?
+  payloadWebhook    String?  // JSON stringified
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  sale             Sale?    @relation(fields: [saleId], references: [id])
+  client           Client   @relation(fields: [clientId], references: [id])
+  paymentRecords   PaymentRecord[]
+}
+
+model PaymentRecord {
+  id           String   @id @default(cuid())
+  receivableId String
+  amount       Int      // In cents
+  date         DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  receivable   Receivable @relation(fields: [receivableId], references: [id])
+}
+
+model Payable {
+  id                String   @id @default(cuid())
+  description       String
+  category          String
+  amount            Int      // In cents
+  dueDate           DateTime
+  status            String   @default("OPEN") // OPEN, PAID, OVERDUE, CANCELLED
+  isRecurring       Boolean  @default(false)
+  recurrenceInterval String? // Monthly, etc.
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model FinancialConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique // card_tax_percent, card_tax_fixed, etc.
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
@@ -66,3 +166,4 @@ model AuditLog {
   details   String?
   createdAt DateTime @default(now())
 }
+
