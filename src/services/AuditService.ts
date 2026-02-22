@@ -33,10 +33,16 @@ export class AuditService {
         newValue?: any
     }) {
         try {
-            const headerList = await headers()
-            // In App Router, we might need a more robust way to get IP depending on provider
-            const ip = headerList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1'
-            const userAgent = headerList.get('user-agent') || 'unknown'
+            let ip = '127.0.0.1'
+            let userAgent = 'unknown'
+
+            try {
+                const headerList = await headers()
+                ip = headerList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1'
+                userAgent = headerList.get('user-agent') || 'unknown'
+            } catch (hError) {
+                console.warn('Não foi possível obter headers para auditoria:', hError)
+            }
 
             await prisma.auditLog.create({
                 data: {

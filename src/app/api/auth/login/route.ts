@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
         return ApiResponse.success({ message: 'Login realizado com sucesso' })
     } catch (error) {
-        console.error('Erro no login:', error)
+        console.error('ERRO CRÍTICO NO LOGIN:', error)
         return ApiResponse.serverError()
     }
 }
