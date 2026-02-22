@@ -1,17 +1,15 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
+const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcrypt')
+require('dotenv').config()
 
-dotenv.config()
+const prisma = new PrismaClient({})
 
-// Let Prisma 7 handle the connection via prisma.config.ts or env auto-loading
-const prisma = new PrismaClient()
 
 async function main() {
     const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || 'change-me-later'
     const hashedPassword = await bcrypt.hash(initialPassword, 10)
 
-    console.log('Iniciando seed...')
+    console.log('Iniciando seed (JS)...')
 
     // 1. Create Admin User
     await prisma.user.upsert({
