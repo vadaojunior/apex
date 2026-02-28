@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         if (error.name === 'ZodError') {
             return ApiResponse.error('Dados inválidos', 400, error.errors)
         }
-        if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+        if (error.code === 'P2002') {
             return ApiResponse.error('Já existe um serviço cadastrado com este nome', 400)
         }
         console.error('API /services POST Error:', error)
@@ -116,7 +116,7 @@ export async function PATCH(request: Request) {
         if (error.name === 'ZodError') {
             return ApiResponse.error('Dados inválidos', 400, error.errors)
         }
-        if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+        if (error.code === 'P2002') {
             return ApiResponse.error('Já existe um serviço cadastrado com este nome', 400)
         }
         console.error('API /services PATCH Error:', error)
