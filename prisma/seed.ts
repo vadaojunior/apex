@@ -2,10 +2,16 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+
 dotenv.config()
 
 // Let Prisma 7 handle the connection via prisma.config.ts or env auto-loading
-const prisma = new PrismaClient()
+const rawUrl = process.env.DATABASE_URL || 'prisma/dev.db'
+const dbPath = rawUrl.replace('file:', '')
+const adapter = new PrismaBetterSqlite3({ url: dbPath })
+
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
     const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || 'change-me-later'

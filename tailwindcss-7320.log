@@ -1,0 +1,110 @@
+2026-02-28T00:34:13.675350Z  INFO tailwindcss_oxide::scanner: Provided sources:
+2026-02-28T00:34:13.675562Z  INFO tailwindcss_oxide::scanner: Source: PublicSourceEntry { base: "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex", pattern: "**/*", negated: false }
+2026-02-28T00:34:13.675850Z  INFO tailwindcss_oxide::scanner: Optimized sources:
+2026-02-28T00:34:13.675872Z  INFO tailwindcss_oxide::scanner: Source: Auto { base: "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex" }
+2026-02-28T00:34:13.677204Z  INFO discover_sources: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.677354Z  INFO discover_sources:walk_synchronous: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.688940Z  INFO discover_sources:walk_synchronous: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.689510Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\package.json"
+2026-02-28T00:34:13.689520Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\financial\\extract\\page.tsx"
+2026-02-28T00:34:13.689536Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\public\\next.svg"
+2026-02-28T00:34:13.689536Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\reports\\financial\\route.ts"
+2026-02-28T00:34:13.689532Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\components.json"
+2026-02-28T00:34:13.689515Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\audit-logs\\route.ts"
+2026-02-28T00:34:13.689514Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma\\seed.js"
+2026-02-28T00:34:13.689614Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\clients\\layout.tsx"
+2026-02-28T00:34:13.689639Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\postcss.config.mjs"
+2026-02-28T00:34:13.689657Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\sales\\route.ts"
+2026-02-28T00:34:13.689648Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\public\\vercel.svg"
+2026-02-28T00:34:13.689684Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\debug-audit.ts"
+2026-02-28T00:34:13.689660Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\layout.tsx"
+2026-02-28T00:34:13.689713Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\auth\\login\\route.ts"
+2026-02-28T00:34:13.689686Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma\\migrations\\20260222010329_init\\migration.sql"
+2026-02-28T00:34:13.689741Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\clients\\page.tsx"
+2026-02-28T00:34:13.689739Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\dialog.tsx"
+2026-02-28T00:34:13.689656Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\services\\route.ts"
+2026-02-28T00:34:13.689766Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\prisma.ts"
+2026-02-28T00:34:13.689716Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma\\seed.ts"
+2026-02-28T00:34:13.689772Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\eslint.config.mjs"
+2026-02-28T00:34:13.689795Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\dashboard\\layout.tsx"
+2026-02-28T00:34:13.689802Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\api-response.ts"
+2026-02-28T00:34:13.689916Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\public\\file.svg"
+2026-02-28T00:34:13.689827Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\login\\page.tsx"
+2026-02-28T00:34:13.689834Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\input.tsx"
+2026-02-28T00:34:13.689845Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma\\migrations\\migration_lock.toml"
+2026-02-28T00:34:13.689845Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\dashboard\\page.tsx"
+2026-02-28T00:34:13.689861Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\public\\window.svg"
+2026-02-28T00:34:13.689997Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\label.tsx"
+2026-02-28T00:34:13.690016Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\financial\\extract\\layout.tsx"
+2026-02-28T00:34:13.689887Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\rate-limit.ts"
+2026-02-28T00:34:13.690040Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\select.tsx"
+2026-02-28T00:34:13.690045Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\page.tsx"
+2026-02-28T00:34:13.689827Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\clients\\route.ts"
+2026-02-28T00:34:13.689989Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\public\\globe.svg"
+2026-02-28T00:34:13.689986Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\inspect-users.js"
+2026-02-28T00:34:13.689859Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\financial\\extract\\route.ts"
+2026-02-28T00:34:13.690107Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\README.md"
+2026-02-28T00:34:13.690123Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\utils.ts"
+2026-02-28T00:34:13.690018Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\auth.ts"
+2026-02-28T00:34:13.690040Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\webhooks\\mercadopago\\route.ts"
+2026-02-28T00:34:13.690156Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\table.tsx"
+2026-02-28T00:34:13.689919Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma.config.ts"
+2026-02-28T00:34:13.690064Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\prisma\\schema.prisma"
+2026-02-28T00:34:13.690099Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\services\\AuditService.ts"
+2026-02-28T00:34:13.689873Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\webhook\\payments\\route.ts"
+2026-02-28T00:34:13.690121Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\reports\\page.tsx"
+2026-02-28T00:34:13.690261Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\payments\\mercadopago\\preference\\route.ts"
+2026-02-28T00:34:13.690270Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\services\\ReportService.ts"
+2026-02-28T00:34:13.690167Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\dashboard\\stats\\route.ts"
+2026-02-28T00:34:13.690175Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\middleware.ts"
+2026-02-28T00:34:13.690175Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\next.config.ts"
+2026-02-28T00:34:13.690219Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\README_APEX.md"
+2026-02-28T00:34:13.690339Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\Sidebar.tsx"
+2026-02-28T00:34:13.690346Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\sales\\layout.tsx"
+2026-02-28T00:34:13.690233Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\payables\\route.ts"
+2026-02-28T00:34:13.690233Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\payments\\mock-provider.ts"
+2026-02-28T00:34:13.690140Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\test-db.ts"
+2026-02-28T00:34:13.690261Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\settings\\audit-logs\\page.tsx"
+2026-02-28T00:34:13.690165Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\payables\\layout.tsx"
+2026-02-28T00:34:13.690420Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\schemas\\index.ts"
+2026-02-28T00:34:13.690289Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\expense-categories\\route.ts"
+2026-02-28T00:34:13.690430Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\card.tsx"
+2026-02-28T00:34:13.690314Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\sales\\page.tsx"
+2026-02-28T00:34:13.690229Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\financial-utils.ts"
+2026-02-28T00:34:13.690344Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\processes\\route.ts"
+2026-02-28T00:34:13.690486Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\test-read.js"
+2026-02-28T00:34:13.690402Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\services\\layout.tsx"
+2026-02-28T00:34:13.690511Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\processes\\layout.tsx"
+2026-02-28T00:34:13.690431Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\components\\ui\\button.tsx"
+2026-02-28T00:34:13.690443Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\processes\\page.tsx"
+2026-02-28T00:34:13.690546Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\tsconfig.json"
+2026-02-28T00:34:13.690471Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\settings\\layout.tsx"
+2026-02-28T00:34:13.690386Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\lib\\payments\\types.ts"
+2026-02-28T00:34:13.690403Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\payables\\page.tsx"
+2026-02-28T00:34:13.690517Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\services\\page.tsx"
+2026-02-28T00:34:13.690517Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\receivables\\page.tsx"
+2026-02-28T00:34:13.690517Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\api\\receivables\\route.ts"
+2026-02-28T00:34:13.690471Z  INFO tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\receivables\\layout.tsx"
+2026-02-28T00:34:13.690657Z  INFO discover_sources: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.690668Z  INFO extract_candidates: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.690673Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.690678Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.691677Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.691696Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.691702Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.691705Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading 1 file(s)
+2026-02-28T00:34:13.691783Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading "C:\\Users\\Osvaldo Junior\\OneDrive\\Documentos\\apex\\apex\\src\\app\\globals.css"
+2026-02-28T00:34:13.691792Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.691798Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.691802Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.691862Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.691876Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.692143Z  INFO extract_candidates: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.692714Z  INFO get_files: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.692722Z  INFO get_files:discover_sources: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.692726Z  INFO get_files:discover_sources: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.692789Z  INFO get_files: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.693065Z  INFO get_globs: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.693071Z  INFO get_globs:discover_sources: tailwindcss_oxide::scanner: enter
+2026-02-28T00:34:13.693075Z  INFO get_globs:discover_sources: tailwindcss_oxide::scanner: exit
+2026-02-28T00:34:13.701171Z  INFO get_globs: tailwindcss_oxide::scanner: exit
