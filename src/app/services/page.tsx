@@ -26,6 +26,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogDescription,
 } from "@/components/ui/dialog"
 
 export default function ServicesPage() {
@@ -96,9 +97,12 @@ export default function ServicesPage() {
                 setOpen(false)
                 fetchServices()
                 setName(''); setDescription(''); setPrice('0'); setTemplates([])
+            } else {
+                const errorData = await res.json()
+                alert(`Erro ao criar serviço: ${errorData.message || 'Erro desconhecido'}`)
             }
-        } catch (err) {
-            alert('Erro ao criar serviço')
+        } catch (err: any) {
+            alert(`Erro ao criar serviço: ${err.message}`)
         }
     }
 
@@ -133,10 +137,11 @@ export default function ServicesPage() {
                 setEditTemplates([])
                 fetchServices()
             } else {
-                alert('Erro ao atualizar serviço')
+                const errorData = await res.json()
+                alert(`Erro ao atualizar serviço: ${errorData.message || 'Erro desconhecido'}`)
             }
-        } catch (err) {
-            alert('Erro ao atualizar serviço')
+        } catch (err: any) {
+            alert(`Erro ao atualizar serviço: ${err.message}`)
         }
     }
 
@@ -158,6 +163,9 @@ export default function ServicesPage() {
                     <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white">
                         <DialogHeader>
                             <DialogTitle className="text-[#d4af37]">Cadastrar Serviço</DialogTitle>
+                            <DialogDescription className="text-gray-400">
+                                Preencha os detalhes para adicionar um novo serviço ao sistema.
+                            </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreate} className="space-y-4 pt-4">
                             <div className="space-y-2">
@@ -254,6 +262,9 @@ export default function ServicesPage() {
                     <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white">
                         <DialogHeader>
                             <DialogTitle className="text-[#d4af37]">Editar Serviço</DialogTitle>
+                            <DialogDescription className="text-gray-400">
+                                Modifique os detalhes do serviço selecionado.
+                            </DialogDescription>
                         </DialogHeader>
                         {editService && (
                             <form onSubmit={handleUpdate} className="space-y-4 pt-4">
