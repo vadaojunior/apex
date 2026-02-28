@@ -18,12 +18,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        console.log('--- API /services POST STARTED ---')
         const session = await getSession()
-        if (!session) return ApiResponse.unauthorized()
+        if (!session) {
+            console.log('No session, returning 401')
+            return ApiResponse.unauthorized()
+        }
 
+        console.log('Reading body...')
         const body = await request.json()
-        const validatedData = ServiceSchema.parse(body)
+        console.log('Body:', JSON.stringify(body))
 
+        console.log('Validating schema...')
+        const validatedData = ServiceSchema.parse(body)
+        console.log('Schema valid.')
+
+        console.log('Creating service in db...', JSON.stringify(validatedData))
         const service = await prisma.service.create({
             data: {
                 name: validatedData.name,
@@ -35,7 +45,9 @@ export async function POST(request: Request) {
             },
             include: { expenseTemplates: true }
         })
+        console.log('Service created successfully. ID:', service.id)
 
+        console.log('Logging audit...')
         await AuditService.log({
             userId: session.userId,
             action: AuditAction.CREATE,
@@ -44,6 +56,7 @@ export async function POST(request: Request) {
             details: `Serviço criado: ${service.name}`,
             newValue: service
         })
+        console.log('Audit logged. Returning success 201.')
 
         return ApiResponse.success(service, 201)
     } catch (error: any) {
