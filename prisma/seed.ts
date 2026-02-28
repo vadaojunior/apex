@@ -56,11 +56,13 @@ async function main() {
     // 3. Create Default Expense Categories
     const defaultCategories = [
         { name: 'Infraestrutura e Software', color: '#3b82f6' },
-        { name: 'Marketing e Publicidade', color: '#10b981' },
+        { name: 'Marketing e Trafego Pago', color: '#10b981' },
         { name: 'Folha de Pagamento', color: '#f59e0b' },
-        { name: 'Impostos e Taxas', color: '#ef4444' },
-        { name: 'Materiais de Escritório', color: '#8b5cf6' },
-        { name: 'Outras Despesas', color: '#6b7280' },
+        { name: 'Taxas e Impostos', color: '#ef4444' },
+        { name: 'Materiais para Escritório', color: '#8b5cf6' },
+        { name: 'Psicologo', color: '#ec4899' },
+        { name: 'Capacitação de Tiro', color: '#f97316' },
+        { name: 'Outros', color: '#6b7280' },
     ]
 
     for (const cat of defaultCategories) {
