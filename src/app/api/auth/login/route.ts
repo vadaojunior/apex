@@ -67,7 +67,12 @@ export async function POST(request: Request) {
         })
 
         return ApiResponse.success({ message: 'Login realizado com sucesso' })
-    } catch (error) {
+    } catch (error: any) {
+        // Fallback logging for investigation
+        const fs = require('fs')
+        const logMsg = `[LOGIN ERROR] ${new Date().toISOString()} - ${error?.message}\n${error?.stack}\n\n`
+        fs.appendFileSync('login-debug.log', logMsg)
+
         console.error('ERRO CRÍTICO NO LOGIN:', error)
         return ApiResponse.serverError()
     }
