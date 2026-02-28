@@ -1,7 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
-    return new PrismaClient()
+    try {
+        return new PrismaClient({
+            log: ['query', 'info', 'warn', 'error'],
+        })
+    } catch (err: any) {
+        console.error('FATAL PRISMA INIT ERROR:', err)
+        // Re-throw to be caught by route handlers
+        throw err
+    }
 }
 
 declare global {

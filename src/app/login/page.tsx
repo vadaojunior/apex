@@ -77,6 +77,7 @@ export default function LoginPage() {
                                 id="username"
                                 name="username"
                                 type="text"
+                                autoComplete="username"
                                 required
                                 className="appearance-none rounded-xl relative block w-full px-4 py-4 border border-white/5 placeholder-gray-600 text-white bg-[#0f1115] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/40 focus:border-[#d4af37]/40 transition-all text-sm"
                                 placeholder="Usuário"
@@ -90,6 +91,7 @@ export default function LoginPage() {
                                 id="password"
                                 name="password"
                                 type="password"
+                                autoComplete="current-password"
                                 required
                                 className="appearance-none rounded-xl relative block w-full px-4 py-4 border border-white/5 placeholder-gray-600 text-white bg-[#0f1115] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/40 focus:border-[#d4af37]/40 transition-all text-sm"
                                 placeholder="Senha"
