@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^7.4.2",
+    "@prisma/config": "^7.4.2",
     "@tailwindcss/postcss": "^4",
     "@types/mercadopago": "^1.5.11",
     "@types/node": "^20.19.33",

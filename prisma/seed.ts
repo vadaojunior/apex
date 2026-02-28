@@ -5,7 +5,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // Let Prisma 7 handle the connection via prisma.config.ts or env auto-loading
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL,
+})
 
 async function main() {
     const initialPassword = process.env.ADMIN_INITIAL_PASSWORD || 'change-me-later'
