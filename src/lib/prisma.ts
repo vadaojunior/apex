@@ -1,16 +1,23 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import path from 'path'
 
 const prismaClientSingleton = () => {
     try {
-        // Obter o caminho do banco removendo 'file:' se existir
-        const rawUrl = process.env.DATABASE_URL || 'prisma/dev.db'
-        const dbPath = rawUrl.replace('file:', '')
+        const rawUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db'
+
+        // Remover o prefixo 'file:' se existir
+        let dbPath = rawUrl.replace(/^file:/, '')
+
+        // Se o caminho for relativo, resolver a partir da raiz do projeto
+        if (!path.isAbsolute(dbPath)) {
+            dbPath = path.resolve(process.cwd(), dbPath)
+        }
 
         const adapter = new PrismaBetterSqlite3({ url: dbPath })
 
         return new PrismaClient({
-            adapter,
+            adapter: adapter as any,
             log: ['query', 'info', 'warn', 'error'],
         })
     } catch (err: any) {
