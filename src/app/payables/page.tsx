@@ -27,6 +27,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogDescription,
 } from "@/components/ui/dialog"
 import {
     Select,
@@ -253,6 +254,9 @@ export default function PayablesPage() {
                         <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white max-w-md">
                             <DialogHeader>
                                 <DialogTitle className="text-[#d4af37]">Gerenciar Categorias</DialogTitle>
+                                <DialogDescription className="text-gray-400">
+                                    Adicione, edite ou remova categorias de despesas.
+                                </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 pt-4">
                                 <form onSubmit={handleCreateCategory} className="flex flex-col space-y-3 p-4 bg-[#252525] rounded-lg border border-gray-800">
@@ -327,6 +331,9 @@ export default function PayablesPage() {
                         <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white">
                             <DialogHeader>
                                 <DialogTitle className="text-red-500">{editingPayable ? 'Editar Despesa' : 'Cadastrar Despesa'}</DialogTitle>
+                                <DialogDescription className="text-gray-400">
+                                    Preencha os dados da conta a pagar.
+                                </DialogDescription>
                             </DialogHeader>
                             <form onSubmit={handleCreateOrUpdate} className="space-y-4 pt-4">
                                 <div className="space-y-2">

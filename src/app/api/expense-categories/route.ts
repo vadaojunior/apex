@@ -53,6 +53,7 @@ export async function POST(request: Request) {
         if (error.code === 'P2002') {
             return ApiResponse.error('Já existe uma categoria com este nome', 400)
         }
+        console.error('API /expense-categories POST Error:', error)
         return ApiResponse.serverError('Erro ao criar categoria')
     }
 }
@@ -97,6 +98,7 @@ export async function PATCH(request: Request) {
         if (error.code === 'P2002') {
             return ApiResponse.error('Já existe uma categoria com este nome', 400)
         }
+        console.error('API /expense-categories PATCH Error:', error)
         return ApiResponse.serverError('Erro ao atualizar categoria')
     }
 }
