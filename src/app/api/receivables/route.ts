@@ -74,22 +74,66 @@ export async function PATCH(request: Request) {
                 })
             }
 
-            await AuditService.log({
-                userId: session.userId,
-                action: AuditAction.PAYMENT,
-                resource: AuditResource.RECEIVABLE,
-                entityId: id,
-                details: `Pagamento de ${receivedAmount / 100} registrado. Status: ${newStatus}`,
-                oldValue: receivable,
-                newValue: rec
-            })
-
             return rec
+        })
+
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.PAYMENT,
+            resource: AuditResource.RECEIVABLE,
+            entityId: id,
+            details: `Pagamento de ${receivedAmount / 100} registrado. Status: ${newStatus}`,
+            oldValue: receivable,
+            newValue: updated
         })
 
         return ApiResponse.success(updated)
     } catch (error) {
         console.error('Update payment error:', error)
         return ApiResponse.serverError('Erro ao atualizar pagamento')
+    }
+}
+
+export async function DELETE(request: Request) {
+    try {
+        const session = await getSession()
+        if (!session) return ApiResponse.unauthorized()
+
+        const { searchParams } = new URL(request.url)
+        const id = searchParams.get('id')
+
+        if (!id) return ApiResponse.error('ID da conta a receber é obrigatório', 400)
+
+        const oldReceivable = await prisma.receivable.findUnique({
+            where: { id }
+        })
+
+        if (!oldReceivable) return ApiResponse.notFound('Conta a receber não encontrada')
+
+        await prisma.$transaction(async (tx) => {
+            // Remove associated payment records first
+            await tx.paymentRecord.deleteMany({
+                where: { receivableId: id }
+            })
+
+            // Delete the receivable
+            await tx.receivable.delete({
+                where: { id }
+            })
+        })
+
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.DELETE,
+            resource: AuditResource.RECEIVABLE,
+            entityId: id,
+            details: `Conta a receber excluída: ${oldReceivable.description}`,
+            oldValue: oldReceivable
+        })
+
+        return ApiResponse.success({ success: true })
+    } catch (error) {
+        console.error('Delete receivable error:', error)
+        return ApiResponse.serverError('Erro ao excluir conta a receber')
     }
 }

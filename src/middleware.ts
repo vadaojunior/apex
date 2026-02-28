@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import * as jwt from 'jsonwebtoken'
+import { jwtVerify } from 'jose'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const token = request.cookies.get('session')?.value
     const { pathname } = request.nextUrl
 
-    // Allow access to login and public assets
+    // Allow access to login, public assets, and webhooks
     if (
         pathname === '/login' ||
         pathname.startsWith('/api/auth') ||
+        pathname.startsWith('/api/webhooks') ||
         pathname.startsWith('/_next') ||
         pathname.includes('logo.png') ||
         pathname === '/favicon.ico'
@@ -25,22 +26,42 @@ export function middleware(request: NextRequest) {
 
     // Protect all other routes
     if (!token) {
+        // Se for rota de API, retorne 401 Unauthorized JSON em vez de tentar redirecionar (o que quebra PWA/Fetch)
+        if (pathname.startsWith('/api')) {
+            return new NextResponse(JSON.stringify({ error: 'Unauthorized access' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            })
+        }
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
     try {
-        // Verify token validity
-        // Note: We use a simple check here, full verification happens in Server Components/Actions
-        if (token) {
-            return NextResponse.next()
-        }
-    } catch (err) {
-        return NextResponse.redirect(new URL('/login', request.url))
-    }
+        // Verify token validity usando "jose", que funciona na Edge Runtime (Next.js Middleware)
+        const secret = new TextEncoder().encode(JWT_SECRET)
+        await jwtVerify(token, secret)
 
-    return NextResponse.next()
+        // Se a validação não jogar exceção, o token é criptograficamente válido
+        return NextResponse.next()
+    } catch (err) {
+        console.error('[Middleware] JWT Verification Failed:', err)
+
+        const response = NextResponse.redirect(new URL('/login', request.url))
+        // Limpar o cookie inválido para não causar loop
+        response.cookies.delete('session')
+
+        if (pathname.startsWith('/api')) {
+            return new NextResponse(JSON.stringify({ error: 'Invalid or expired token' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            })
+        }
+
+        return response
+    }
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)', '/dashboard/:path*', '/services/:path*', '/clients/:path*', '/settings/:path*'],
+    // Aplica o middleware em TODAS as rotas, exceto arquivos assincronos
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

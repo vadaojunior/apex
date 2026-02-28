@@ -10,8 +10,9 @@ export async function GET() {
             orderBy: { name: 'asc' }
         })
         return ApiResponse.success(clients)
-    } catch (error) {
-        return ApiResponse.serverError('Erro ao buscar clientes')
+    } catch (error: any) {
+        console.error('API CLIENTS ERROR:', error)
+        return ApiResponse.serverError(`Erro ao buscar clientes: ${error.message || 'Erro desconhecido'}`)
     }
 }
 
@@ -42,5 +43,55 @@ export async function POST(request: Request) {
             return ApiResponse.error('Dados inválidos', 400, error.errors)
         }
         return ApiResponse.serverError('Erro ao criar cliente')
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const session = await getSession()
+        if (!session) return ApiResponse.unauthorized()
+
+        const body = await request.json()
+        const { id, ...updateDataRaw } = body
+
+        if (!id) {
+            return ApiResponse.error('ID do cliente é obrigatório', 400)
+        }
+
+        // Convert empty strings to null for optional database fields
+        const updateData = {
+            name: updateDataRaw.name,
+            cpf: updateDataRaw.cpf || null,
+            phone: updateDataRaw.phone || null,
+            email: updateDataRaw.email || null,
+            govPassword: updateDataRaw.govPassword || null,
+        }
+
+        const oldClient = await prisma.client.findUnique({
+            where: { id }
+        })
+
+        if (!oldClient) {
+            return ApiResponse.notFound('Cliente não encontrado')
+        }
+
+        const client = await prisma.client.update({
+            where: { id },
+            data: updateData
+        })
+
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.UPDATE,
+            resource: AuditResource.CLIENT,
+            entityId: client.id,
+            details: `Cliente atualizado: ${client.name}`,
+            oldValue: JSON.stringify(oldClient),
+            newValue: JSON.stringify(client)
+        })
+
+        return ApiResponse.success(client)
+    } catch (error) {
+        return ApiResponse.serverError('Erro ao atualizar cliente')
     }
 }

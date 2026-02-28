@@ -21,6 +21,14 @@ import {
     SelectValue
 } from '@/components/ui/select'
 import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter
+} from '@/components/ui/dialog'
+import {
     Table,
     TableBody,
     TableCell,
@@ -42,6 +50,12 @@ export default function SalesPage() {
     const [installments, setInstallments] = useState(1)
     const [paymentStatus, setPaymentStatus] = useState('PAID')
     const [notes, setNotes] = useState('')
+
+    // Success Modal State
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false)
+    const [generatedReceivableId, setGeneratedReceivableId] = useState<string | null>(null)
+    const [mpLink, setMpLink] = useState('')
+    const [isGeneratingMP, setIsGeneratingMP] = useState(false)
 
     useEffect(() => {
         async function fetchData() {
@@ -135,9 +149,17 @@ export default function SalesPage() {
             })
 
             if (res.ok) {
-                alert('Venda registrada com sucesso!')
-                // Reset form or redirect
-                window.location.reload()
+                const data = await res.json()
+                // Sale created successfully
+                if (data.data?.receivable?.status === 'OPEN' && data.data?.receivable?.id && paymentMethod !== 'CASH') {
+                    // It's open and eligible for Mercado Pago link
+                    setGeneratedReceivableId(data.data.receivable.id)
+                    setIsSuccessModalOpen(true)
+                } else {
+                    // Paid in cash or fully paid right away
+                    alert('Atendimento finalizado com sucesso!')
+                    window.location.reload()
+                }
             } else {
                 alert('Erro ao registrar venda')
             }
@@ -146,6 +168,39 @@ export default function SalesPage() {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleGenerateMPLink = async () => {
+        if (!generatedReceivableId) return
+        setIsGeneratingMP(true)
+        try {
+            const res = await fetch('/api/payments/mercadopago/preference', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ receivableId: generatedReceivableId })
+            })
+
+            const result = await res.json()
+            if (res.ok && result?.data?.init_point) {
+                setMpLink(result.data.init_point)
+            } else {
+                alert(`Erro ao gerar link: ${result?.error || 'Desconhecido'}`)
+            }
+        } catch (error) {
+            alert('Erro na comunicação com o Mercado Pago')
+        } finally {
+            setIsGeneratingMP(false)
+        }
+    }
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(mpLink)
+        alert('Link copiado! Cole no WhatsApp do cliente.')
+    }
+
+    const closeSuccessModal = () => {
+        setIsSuccessModalOpen(false)
+        window.location.reload() // Reload to reset the checkout page
     }
 
     return (
@@ -279,24 +334,21 @@ export default function SalesPage() {
                                         className={paymentMethod === 'CASH' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
                                         onClick={() => setPaymentMethod('CASH')}
                                     >
-                                        <Banknote className="w-4 h-4 mr-2" />
-                                        Pix/Dinheiro
+                                        <Banknote className="w-5 h-5" />
                                     </Button>
                                     <Button
                                         variant={paymentMethod === 'CREDIT_CARD' ? 'default' : 'outline'}
                                         className={paymentMethod === 'CREDIT_CARD' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
                                         onClick={() => setPaymentMethod('CREDIT_CARD')}
                                     >
-                                        <CreditCard className="w-4 h-4 mr-2" />
-                                        Cartão
+                                        <CreditCard className="w-5 h-5" />
                                     </Button>
                                     <Button
                                         variant={paymentMethod === 'BOLETO' ? 'default' : 'outline'}
                                         className={paymentMethod === 'BOLETO' ? 'bg-[#d4af37] text-black hover:bg-[#b8952e]' : 'border-gray-800 text-gray-400'}
                                         onClick={() => setPaymentMethod('BOLETO')}
                                     >
-                                        <Receipt className="w-4 h-4 mr-2" />
-                                        Boleto
+                                        <Receipt className="w-5 h-5" />
                                     </Button>
                                 </div>
 
@@ -339,6 +391,59 @@ export default function SalesPage() {
                     </Card>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            <Dialog open={isSuccessModalOpen} onOpenChange={closeSuccessModal}>
+                <DialogContent className="bg-[#1a1a1a] border-yellow-600/20 text-white max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-[#d4af37] text-2xl flex items-center">
+                            <Receipt className="w-6 h-6 mr-2" /> Venda Finalizada!
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                            O atendimento foi registrado com sucesso e a conta a receber foi gerada.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4 space-y-4">
+                        <p className="text-sm font-medium">Você escolheu faturar o cliente. Como ele fará o pagamento via WhatsApp, deseja gerar o Link do Mercado Pago (PIX/Cartão/Boleto) agora?</p>
+
+                        {!mpLink ? (
+                            <Button
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12"
+                                onClick={handleGenerateMPLink}
+                                disabled={isGeneratingMP}
+                            >
+                                {isGeneratingMP ? 'Gerando Link...' : 'Gerar Link Seguro MP'}
+                            </Button>
+                        ) : (
+                            <div className="space-y-2 animate-in fade-in zoom-in duration-300">
+                                <Label className="text-[#d4af37] font-bold text-sm">Link de Pagamento Gerado!</Label>
+                                <div className="flex space-x-2">
+                                    <Input
+                                        readOnly
+                                        value={mpLink}
+                                        className="bg-[#252525] border-gray-800 text-white flex-1"
+                                    />
+                                    <Button onClick={copyToClipboard} className="bg-green-600 hover:bg-green-700 text-white">
+                                        Copiar
+                                    </Button>
+                                </div>
+                                <p className="text-xs text-gray-500 pt-2">Envie este link via WhatsApp. Assim que o cliente pagar, o sistema dará baixa automaticamente.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="border-gray-800 text-gray-400 hover:bg-[#252525] hover:text-white"
+                            onClick={closeSuccessModal}
+                        >
+                            Fechar e Novo Atendimento
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

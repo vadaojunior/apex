@@ -65,6 +65,53 @@ export async function POST(request: Request) {
                 }
             })
 
+            // Generate Payables from ServiceExpenseTemplates and Create ClientServices (Processes)
+            const servicesIds = Array.from(new Set(items.map(item => item.serviceId)))
+            const servicesWithTemplates = await tx.service.findMany({
+                where: { id: { in: servicesIds } },
+                include: { expenseTemplates: true }
+            })
+
+            const payablesData: any[] = []
+            const clientServicesData: any[] = []
+
+            for (const item of items) {
+                const service = servicesWithTemplates.find(s => s.id === item.serviceId)
+                if (service && service.expenseTemplates.length > 0) {
+                    for (let step = 0; step < item.quantity; step++) {
+                        clientServicesData.push({
+                            clientId: clientId,
+                            serviceId: item.serviceId,
+                            status: 'PENDING',
+                            notes: `Gerado via Venda #${sale.id.slice(-6).toUpperCase()}`
+                        })
+
+                        for (const template of service.expenseTemplates) {
+                            payablesData.push({
+                                description: `${template.description} (${service.name} / Venda #${sale.id.slice(-6).toUpperCase()})`,
+                                amount: template.amount,
+                                clientId: clientId,
+                                categoryId: template.categoryId,
+                                dueDate: new Date(),
+                                status: 'OPEN'
+                            })
+                        }
+                    }
+                }
+            }
+
+            if (clientServicesData.length > 0) {
+                await tx.clientService.createMany({
+                    data: clientServicesData
+                })
+            }
+
+            if (payablesData.length > 0) {
+                await tx.payable.createMany({
+                    data: payablesData
+                })
+            }
+
             if (paymentStatus === 'PAID') {
                 await tx.paymentRecord.create({
                     data: {
@@ -76,16 +123,16 @@ export async function POST(request: Request) {
                 })
             }
 
-            await AuditService.log({
-                userId: session.userId,
-                action: AuditAction.CREATE,
-                resource: AuditResource.SALE,
-                entityId: sale.id,
-                details: `Venda registrada para cliente ID: ${clientId}`,
-                newValue: sale
-            })
-
             return { sale, receivable }
+        })
+
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.CREATE,
+            resource: AuditResource.SALE,
+            entityId: result.sale.id,
+            details: `Venda registrada para cliente ID: ${clientId}`,
+            newValue: result.sale
         })
 
         return ApiResponse.success(result, 201)

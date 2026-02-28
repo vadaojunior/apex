@@ -37,7 +37,12 @@ export default function ClientsPage() {
     const [cpf, setCpf] = useState('')
     const [phone, setPhone] = useState('')
     const [email, setEmail] = useState('')
+    const [govPassword, setGovPassword] = useState('')
     const [open, setOpen] = useState(false)
+
+    // Edit Client Form
+    const [editClient, setEditClient] = useState<any>(null)
+    const [openEdit, setOpenEdit] = useState(false)
 
     useEffect(() => {
         fetchClients()
@@ -60,15 +65,43 @@ export default function ClientsPage() {
             const res = await fetch('/api/clients', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, cpf, phone, email })
+                body: JSON.stringify({ name, cpf, phone, email, govPassword })
             })
             if (res.ok) {
                 setOpen(false)
                 fetchClients()
-                setName(''); setCpf(''); setPhone(''); setEmail('')
+                setName(''); setCpf(''); setPhone(''); setEmail(''); setGovPassword('')
             }
         } catch (err) {
             alert('Erro ao criar cliente')
+        }
+    }
+
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!editClient) return
+        try {
+            const res = await fetch('/api/clients', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: editClient.id,
+                    name: editClient.name,
+                    cpf: editClient.cpf,
+                    phone: editClient.phone,
+                    email: editClient.email,
+                    govPassword: editClient.govPassword
+                })
+            })
+            if (res.ok) {
+                setOpenEdit(false)
+                setEditClient(null)
+                fetchClients()
+            } else {
+                alert('Erro ao atualizar cliente')
+            }
+        } catch (err) {
+            alert('Erro ao atualizar cliente')
         }
     }
 
@@ -114,16 +147,59 @@ export default function ClientsPage() {
                                     <Input value={cpf} onChange={e => setCpf(e.target.value)} className="bg-[#252525] border-gray-800" />
                                 </div>
                                 <div className="space-y-2">
+                                    <Label>Senha GOV</Label>
+                                    <Input value={govPassword} onChange={e => setGovPassword(e.target.value)} type="password" placeholder="***" className="bg-[#252525] border-gray-800" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
                                     <Label>Telefone (DDD + Número)</Label>
                                     <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="16999999999" className="bg-[#252525] border-gray-800" />
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>E-mail</Label>
-                                <Input type="email" value={email} onChange={e => setEmail(e.target.value)} className="bg-[#252525] border-gray-800" />
+                                <div className="space-y-2">
+                                    <Label>E-mail</Label>
+                                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} className="bg-[#252525] border-gray-800" />
+                                </div>
                             </div>
                             <Button type="submit" className="w-full bg-[#d4af37] text-black hover:bg-[#b8952e]">Salvar Cliente</Button>
                         </form>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+                    <DialogContent className="bg-[#1a1a1a] border-gray-800 text-white">
+                        <DialogHeader>
+                            <DialogTitle className="text-[#d4af37]">Editar Cliente</DialogTitle>
+                        </DialogHeader>
+                        {editClient && (
+                            <form onSubmit={handleUpdate} className="space-y-4 pt-4">
+                                <div className="space-y-2">
+                                    <Label>Nome Completo</Label>
+                                    <Input value={editClient.name} onChange={e => setEditClient({ ...editClient, name: e.target.value })} required className="bg-[#252525] border-gray-800" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>CPF</Label>
+                                        <Input value={editClient.cpf || ''} onChange={e => setEditClient({ ...editClient, cpf: e.target.value })} className="bg-[#252525] border-gray-800" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Senha GOV</Label>
+                                        <Input value={editClient.govPassword || ''} onChange={e => setEditClient({ ...editClient, govPassword: e.target.value })} type="password" placeholder="***" className="bg-[#252525] border-gray-800" />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Telefone (DDD + Número)</Label>
+                                        <Input value={editClient.phone || ''} onChange={e => setEditClient({ ...editClient, phone: e.target.value })} placeholder="16999999999" className="bg-[#252525] border-gray-800" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>E-mail</Label>
+                                        <Input type="email" value={editClient.email || ''} onChange={e => setEditClient({ ...editClient, email: e.target.value })} className="bg-[#252525] border-gray-800" />
+                                    </div>
+                                </div>
+                                <Button type="submit" className="w-full bg-[#d4af37] text-black hover:bg-[#b8952e]">Atualizar Cliente</Button>
+                            </form>
+                        )}
                     </DialogContent>
                 </Dialog>
             </header>
@@ -144,6 +220,7 @@ export default function ClientsPage() {
                         <TableRow className="border-gray-800">
                             <TableHead className="text-gray-400">Nome</TableHead>
                             <TableHead className="text-gray-400">CPF</TableHead>
+                            <TableHead className="text-gray-400">Senha GOV</TableHead>
                             <TableHead className="text-gray-400">Contato</TableHead>
                             <TableHead className="text-gray-400">Cadastro</TableHead>
                             <TableHead className="text-right text-gray-400">Ações</TableHead>
@@ -154,6 +231,7 @@ export default function ClientsPage() {
                             <TableRow key={client.id} className="border-gray-800 hover:bg-white/5 transition-all">
                                 <TableCell className="text-white font-medium">{client.name}</TableCell>
                                 <TableCell className="text-gray-400">{client.cpf || '---'}</TableCell>
+                                <TableCell className="text-gray-400">{client.govPassword || '---'}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-col space-y-1">
                                         <span className="text-gray-300 flex items-center text-xs"><Phone className="w-3 h-3 mr-1" /> {client.phone || '---'}</span>
@@ -174,7 +252,15 @@ export default function ClientsPage() {
                                             <MessageCircle className="w-5 h-5" />
                                         </Button>
                                     )}
-                                    <Button size="icon" variant="ghost" className="text-gray-400 hover:bg-white/5">
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="text-gray-400 hover:bg-white/5"
+                                        onClick={() => {
+                                            setEditClient(client)
+                                            setOpenEdit(true)
+                                        }}
+                                    >
                                         <FileText className="w-5 h-5" />
                                     </Button>
                                 </TableCell>

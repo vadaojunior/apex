@@ -46,6 +46,26 @@ async function main() {
     }
 
     console.log('Serviços padrão criados/verificados.')
+
+    // 3. Create Default Expense Categories
+    const defaultCategories = [
+        { name: 'Infraestrutura e Software', color: '#3b82f6' },
+        { name: 'Marketing e Publicidade', color: '#10b981' },
+        { name: 'Folha de Pagamento', color: '#f59e0b' },
+        { name: 'Impostos e Taxas', color: '#ef4444' },
+        { name: 'Materiais de Escritório', color: '#8b5cf6' },
+        { name: 'Outras Despesas', color: '#6b7280' },
+    ]
+
+    for (const cat of defaultCategories) {
+        await prisma.expenseCategory.upsert({
+            where: { name: cat.name },
+            update: {},
+            create: cat,
+        })
+    }
+
+    console.log('Categorias de despesas padrão criadas/verificadas.')
 }
 
 main()

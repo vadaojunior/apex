@@ -5,12 +5,18 @@ export const ClientSchema = z.object({
     cpf: z.string().optional().nullable(),
     phone: z.string().optional().nullable(),
     email: z.string().email('E-mail inválido').or(z.literal('')).optional().nullable(),
+    govPassword: z.string().optional().nullable(),
 })
 
 export const ServiceSchema = z.object({
     name: z.string().min(1, 'Nome do serviço é obrigatório'),
     description: z.string().optional().nullable(),
     price: z.number().int().min(0, 'O preço deve ser positivo (em centavos)'),
+    expenseTemplates: z.array(z.object({
+        description: z.string().min(1, 'Descrição é obrigatória'),
+        categoryId: z.string().min(1, 'Categoria é obrigatória'),
+        amount: z.number().int().min(0, 'Valor deve ser positivo'),
+    })).optional().default([]),
 })
 
 export const SaleSchema = z.object({
@@ -36,8 +42,9 @@ export const ReceivableSchema = z.object({
 
 export const PayableSchema = z.object({
     description: z.string().min(1, 'Descrição é obrigatória'),
-    category: z.string().min(1, 'Categoria é obrigatória'),
+    categoryId: z.string().min(1, 'Categoria é obrigatória'),
+    clientId: z.string().min(1, 'Cliente é obrigatório'),
     amount: z.number().int().min(1, 'Valor deve ser positivo'),
     dueDate: z.date().or(z.string().datetime()),
-    status: z.enum(['OPEN', 'PAID', 'OVERDUE', 'CANCELLED']),
+    status: z.enum(['OPEN', 'PAID', 'OVERDUE', 'CANCELLED']).optional().default('OPEN'),
 })

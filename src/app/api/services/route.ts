@@ -7,7 +7,8 @@ import { ServiceSchema } from '@/schemas'
 export async function GET() {
     try {
         const services = await prisma.service.findMany({
-            orderBy: { name: 'asc' }
+            orderBy: { name: 'asc' },
+            include: { expenseTemplates: { include: { category: true } } }
         })
         return ApiResponse.success(services)
     } catch (error) {
@@ -24,7 +25,15 @@ export async function POST(request: Request) {
         const validatedData = ServiceSchema.parse(body)
 
         const service = await prisma.service.create({
-            data: validatedData
+            data: {
+                name: validatedData.name,
+                description: validatedData.description,
+                price: validatedData.price,
+                expenseTemplates: {
+                    create: validatedData.expenseTemplates
+                }
+            },
+            include: { expenseTemplates: true }
         })
 
         await AuditService.log({
@@ -42,5 +51,64 @@ export async function POST(request: Request) {
             return ApiResponse.error('Dados inválidos', 400, error.errors)
         }
         return ApiResponse.serverError('Erro ao criar serviço')
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const session = await getSession()
+        if (!session) return ApiResponse.unauthorized()
+
+        const body = await request.json()
+        const { id, ...updateData } = body
+
+        if (!id) {
+            return ApiResponse.error('ID do serviço é obrigatório', 400)
+        }
+
+        const oldService = await prisma.service.findUnique({
+            where: { id },
+            include: { expenseTemplates: true }
+        })
+
+        if (!oldService) {
+            return ApiResponse.notFound('Serviço não encontrado')
+        }
+
+        const validatedData = ServiceSchema.parse(updateData)
+
+        // For simplicity, we delete existing templates and recreate the new ones
+        const service = await prisma.$transaction(async (tx) => {
+            await tx.serviceExpenseTemplate.deleteMany({
+                where: { serviceId: id }
+            })
+
+            return tx.service.update({
+                where: { id },
+                data: {
+                    name: validatedData.name,
+                    description: validatedData.description || null,
+                    price: validatedData.price,
+                    expenseTemplates: {
+                        create: validatedData.expenseTemplates
+                    }
+                },
+                include: { expenseTemplates: true }
+            })
+        })
+
+        await AuditService.log({
+            userId: session.userId,
+            action: AuditAction.UPDATE,
+            resource: AuditResource.SERVICE,
+            entityId: service.id,
+            details: `Serviço atualizado: ${service.name}`,
+            oldValue: JSON.stringify(oldService),
+            newValue: JSON.stringify(service)
+        })
+
+        return ApiResponse.success(service)
+    } catch (error) {
+        return ApiResponse.serverError('Erro ao atualizar serviço')
     }
 }

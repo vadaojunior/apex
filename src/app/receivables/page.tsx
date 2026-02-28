@@ -9,7 +9,9 @@ import {
     Clock,
     DollarSign,
     MoreVertical,
-    ChevronDown
+    ChevronDown,
+    Trash2,
+    Link as LinkIcon
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/financial-utils'
 import {
@@ -50,8 +52,16 @@ export default function ReceivablesPage() {
         try {
             const url = statusFilter === 'ALL' ? '/api/receivables' : `/api/receivables?status=${statusFilter}`
             const res = await fetch(url)
-            const data = await res.json()
-            setReceivables(data)
+            const result = await res.json()
+            if (result && Array.isArray(result.receivables)) {
+                setReceivables(result.receivables)
+            } else if (Array.isArray(result)) {
+                // Fallback in case the API changes back to returning a flat array
+                setReceivables(result)
+            } else {
+                setReceivables([])
+                console.error('Formato de resposta inesperado:', result)
+            }
         } catch (err) {
             console.error('Erro ao buscar contas a receber:', err)
         } finally {
@@ -71,6 +81,43 @@ export default function ReceivablesPage() {
             }
         } catch (err) {
             alert('Erro ao registrar pagamento')
+        }
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Deseja realmente excluir esta conta a receber?')) return
+        try {
+            const res = await fetch(`/api/receivables?id=${id}`, { method: 'DELETE' })
+            if (res.ok) {
+                fetchReceivables()
+            } else {
+                alert('Erro ao excluir conta a receber')
+            }
+        } catch (err) {
+            alert('Erro na requisição')
+        }
+    }
+
+    const handleGeneratePaymentLink = async (id: string) => {
+        try {
+            setLoading(true)
+            const res = await fetch('/api/payments/mercadopago/preference', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ receivableId: id })
+            })
+
+            const result = await res.json()
+            if (res.ok && result?.init_point) {
+                // Open the MP checkout in a new window/tab
+                window.open(result.init_point, '_blank')
+            } else {
+                alert(`Erro ao gerar link: ${result?.error || 'Desconhecido'}`)
+            }
+        } catch (error) {
+            alert('Erro na comunicação com o servidor Mercado Pago')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -167,21 +214,49 @@ export default function ReceivablesPage() {
                                 </TableCell>
                                 <TableCell className="text-gray-300">{r.client.name}</TableCell>
                                 <TableCell className="text-gray-400 text-sm truncate max-w-[200px]">{r.description}</TableCell>
-                                <TableCell className="text-gray-400 text-xs">{r.paymentMethod}</TableCell>
+                                <TableCell className="text-gray-400 text-xs">
+                                    <span className="px-2 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-gray-700 text-gray-300 w-fit">
+                                        {r.paymentMethod === 'CASH' ? 'Dinheiro/PIX' :
+                                            r.paymentMethod === 'CREDIT_CARD' ? 'Cartão de Crédito' :
+                                                r.paymentMethod === 'BOLETO' ? 'Boleto Bancário' : r.paymentMethod}
+                                    </span>
+                                </TableCell>
                                 <TableCell className="text-white font-bold">{formatCurrency(r.amount)}</TableCell>
                                 <TableCell className="text-green-500/80 font-medium">{formatCurrency(r.receivedAmount)}</TableCell>
                                 <TableCell>{getStatusBadge(r.status)}</TableCell>
                                 <TableCell className="text-right">
-                                    {r.status !== 'PAID' && (
+                                    <div className="flex items-center justify-end space-x-2">
+                                        {r.status !== 'PAID' && (
+                                            <>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 h-8 w-8"
+                                                    onClick={() => handleGeneratePaymentLink(r.id)}
+                                                    title="Gerar Link Mercado Pago"
+                                                >
+                                                    <LinkIcon className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37] hover:text-black"
+                                                    onClick={() => handlePayment(r.id, r.amount - r.receivedAmount)}
+                                                >
+                                                    Dar Baixa
+                                                </Button>
+                                            </>
+                                        )}
                                         <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37] hover:text-black"
-                                            onClick={() => handlePayment(r.id, r.amount - r.receivedAmount)}
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-red-500 hover:text-red-400 hover:bg-red-500/10 h-8 w-8"
+                                            onClick={() => handleDelete(r.id)}
+                                            title="Excluir"
                                         >
-                                            Dar Baixa
+                                            <Trash2 className="w-4 h-4" />
                                         </Button>
-                                    )}
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -195,6 +270,6 @@ export default function ReceivablesPage() {
                     </TableBody>
                 </Table>
             </Card>
-        </div>
+        </div >
     )
 }
