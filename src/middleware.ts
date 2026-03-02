@@ -8,13 +8,15 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('session')?.value
     const { pathname } = request.nextUrl
 
-    // Allow access to login, public assets, and webhooks
+    // Allow access to public landing page, login, public assets, and webhooks
     if (
+        pathname === '/' ||
         pathname === '/login' ||
         pathname.startsWith('/api/auth') ||
         pathname.startsWith('/api/webhooks') ||
         pathname.startsWith('/_next') ||
         pathname.includes('logo.png') ||
+        pathname.includes('logosite.png') ||
         pathname === '/favicon.ico'
     ) {
         // If already logged in and trying to access login page, redirect to dashboard

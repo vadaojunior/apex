@@ -8,17 +8,21 @@ async function test() {
     })
     const cookies = loginRes.headers.get('set-cookie')
 
-    console.log('Sending duplicate payload...')
+    console.log('Sending exact UI payload...')
     const srv1 = await fetch('http://localhost:3000/api/services', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Cookie': cookies || ''
         },
+        // The UI sends price as cents: `Math.round(parseFloat(price.replace(',', '.')) * 100)`
+        // BUT what happens if `price` is "" empty or a weird string? `NaN`
+        // Or what if expenseTemplates are sent incorrectly? 
         body: JSON.stringify({
-            name: 'Service Testing 12345',
-            price: 15000,
-            description: 'Desc'
+            name: "Testing 500 Route UI Crash",
+            description: "",
+            price: NaN, // Lets trigger a possible 500 crash here if Zod isn't catching NaN properly
+            expenseTemplates: []
         })
     })
 
