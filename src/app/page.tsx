@@ -5,7 +5,6 @@ import { AboutCacSection } from "@/components/landing/AboutCacSection";
 import { CacLevelsSection } from "@/components/landing/CacLevelsSection";
 import { GlossarySection } from "@/components/landing/GlossarySection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
-import { SocialProofSection } from "@/components/landing/SocialProofSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { FloatingWhatsApp } from "@/components/landing/FloatingWhatsApp";
@@ -31,7 +30,6 @@ export default function Home() {
           <CacLevelsSection />
           <GlossarySection />
           <ServicesSection />
-          <SocialProofSection />
           <FaqSection />
         </main>
         <FooterSection />
