@@ -10,6 +10,8 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/rajdhani": "^5.2.7",
     "@prisma/adapter-better-sqlite3": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@types/bcrypt": "^6.0.0",
