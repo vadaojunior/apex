@@ -12,7 +12,7 @@ export function AboutUsSection() {
                         <div className="aspect-[4/5] rounded-2xl overflow-hidden glass-card tactical-border relative group">
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-10"></div>
                             <img
-                                src="/atiradora.png?v=2"
+                                src="/maria-isabel-atiradora.png"
                                 alt="Maria Isabel - Assessora Legal"
                                 className="object-cover w-full h-[600px] grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0"
                             />
