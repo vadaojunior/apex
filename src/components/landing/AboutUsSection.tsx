@@ -12,18 +12,20 @@ export function AboutUsSection() {
                         <div className="aspect-[4/5] rounded-2xl overflow-hidden glass-card tactical-border relative group">
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-10"></div>
                             <img
-                                src="https://images.unsplash.com/photo-1595590424283-b8f17842773f?q=80&w=2070&auto=format&fit=crop"
-                                alt="Armas e Legislação"
-                                className="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0"
+                                src="/atiradora.png"
+                                alt="Maria Isabel - Assessora Legal"
+                                className="object-cover w-full h-[600px] grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0"
                             />
 
-                            <div className="absolute bottom-6 left-6 z-20 space-y-2">
+                            <div className="absolute bottom-6 left-6 z-20 space-y-2 max-w-[90%]">
                                 <div className="p-3 bg-primary/20 rounded-xl inline-block backdrop-blur-md mb-2">
                                     <ShieldCheck className="w-8 h-8 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-xl font-black text-foreground">Autoridade Legal</p>
-                                    <p className="text-sm text-primary uppercase tracking-widest font-bold">A Ponte para a sua Legalidade</p>
+                                    <p className="text-xl font-black text-foreground">Maria Isabel</p>
+                                    <p className="text-sm text-primary uppercase tracking-wider font-bold mt-1">
+                                        Expertise documental para viabilizar o seu registro com segurança e precisão.
+                                    </p>
                                 </div>
                             </div>
                         </div>
