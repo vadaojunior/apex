@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { Shield, Target, BookOpen, Briefcase, UserCheck, Star, ShieldCheck } from "lucide-react";
+import atiradoraImg from "../../../public/maria-isabel-atiradora.png";
 
 export function AboutUsSection() {
     return (
@@ -11,10 +13,11 @@ export function AboutUsSection() {
                     <div className="lg:w-1/3 relative sticky top-32">
                         <div className="aspect-[4/5] rounded-2xl overflow-hidden glass-card tactical-border relative group">
                             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90 z-10"></div>
-                            <img
-                                src="/maria-isabel-atiradora.png"
+                            <Image
+                                src={atiradoraImg}
                                 alt="Maria Isabel - Assessora Legal"
                                 className="object-cover w-full h-[600px] grayscale group-hover:grayscale-0 transition-all duration-700 blur-[2px] group-hover:blur-0"
+                                priority
                             />
 
                             <div className="absolute bottom-6 left-6 z-20 space-y-2 max-w-[90%]">
