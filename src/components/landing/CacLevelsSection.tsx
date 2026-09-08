@@ -1,5 +1,4 @@
 import { ShieldAlert, AlertTriangle, XOctagon, CheckCircle2, Target, Info, ArrowRight } from "lucide-react";
-import Link from "next/link";
 
 export function CacLevelsSection() {
     return (
@@ -73,7 +72,7 @@ export function CacLevelsSection() {
                                     <CheckCircle2 className="w-6 h-6 text-primary shrink-0 mt-1" />
                                     <div>
                                         <h4 className="font-bold text-foreground">Monitoramento de Prazos</h4>
-                                        <p className="text-sm text-muted-foreground">Antecipamos o protocolo para evitar que você fique "em hiato" entre o vencimento e o novo registro.</p>
+                                        <p className="text-sm text-muted-foreground">Antecipamos o protocolo para evitar que você fique &quot;em hiato&quot; entre o vencimento e o novo registro.</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
