@@ -104,7 +104,7 @@ export function AboutCacSection() {
                             <div className="absolute top-0 left-0 w-2 h-full bg-primary rounded-l-xl" />
                             <h4 className="text-lg font-bold text-primary mb-3">Nota de Segurança</h4>
                             <p className="text-foreground leading-relaxed italic">
-                                "O Certificado de Registro (CR) é um documento pessoal e intransferível que autoriza a aquisição e o manejo legal de armas de fogo, sendo a porta de entrada para quem busca profissionalismo e legalidade na atividade."
+                                &quot;O Certificado de Registro (CR) é um documento pessoal e intransferível que autoriza a aquisição e o manejo legal de armas de fogo, sendo a porta de entrada para quem busca profissionalismo e legalidade na atividade.&quot;
                             </p>
                         </div>
                     </div>
