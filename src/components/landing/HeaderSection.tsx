@@ -26,6 +26,7 @@ export function HeaderSection() {
         { name: "Início", href: "#" },
         { name: "Quem Somos", href: "#quem-somos" },
         { name: "Ser CAC", href: "#sobre" },
+        { name: "Simulador CAC", href: "#simulador" },
         { name: "Renovar", href: "#renovacao-niveis" },
         { name: "Serviços", href: "#servicos" },
         { name: "Dúvidas", href: "#faq" },
