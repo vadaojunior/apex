@@ -3,8 +3,11 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { AboutUsSection } from "@/components/landing/AboutUsSection";
 import { AboutCacSection } from "@/components/landing/AboutCacSection";
 import { CacLevelsSection } from "@/components/landing/CacLevelsSection";
+import { CacSimulatorSection } from "@/components/landing/CacSimulatorSection";
 import { GlossarySection } from "@/components/landing/GlossarySection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
+import { SocialProofSection } from "@/components/landing/SocialProofSection";
+import { NewsSection } from "@/components/landing/NewsSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { FooterSection } from "@/components/landing/FooterSection";
 import { FloatingWhatsApp } from "@/components/landing/FloatingWhatsApp";
@@ -27,9 +30,12 @@ export default function Home() {
           <HeroSection />
           <AboutUsSection />
           <AboutCacSection />
+          <CacSimulatorSection />
           <CacLevelsSection />
           <GlossarySection />
           <ServicesSection />
+          <SocialProofSection />
+          <NewsSection />
           <FaqSection />
         </main>
         <FooterSection />
