@@ -9,7 +9,6 @@ import {
     ShoppingCart,
     ArrowUpCircle,
     ArrowDownCircle,
-    Settings,
     LogOut,
     Receipt,
     BarChart3,
